@@ -1,0 +1,97 @@
+.subjects-panel {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Input Field */
+.subjects-panel input {
+    padding: 8px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: calc(100% - 22px);
+}
+
+/* Buttons */
+.add-btn, .delete-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.add-btn {
+    background: #ff758c;
+    color: white;
+}
+
+.add-btn:hover {
+    background: #e6486e;
+}
+
+.delete-btn {
+    background: #70e1f5;
+    color: black;
+}
+
+.delete-btn:hover {
+    background: #5ac8e5;
+}
+
+/* Subject List */
+.subject-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 5px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* When hovering over subject, cursor becomes pointer */
+.subject-item .subject-name {
+    cursor: pointer;
+    font-weight: 500;
+    color: #007bff;
+    transition: color 0.2s ease-in-out;
+}
+
+.subject-item .subject-name:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Add hover effect to subject */
+.subject-item:hover {
+    transform: scale(1.02);
+}
+
+/* Delete Confirmation Popup */
+.popup {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    color:black;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.popup button {
+    margin: 10px;
+}
