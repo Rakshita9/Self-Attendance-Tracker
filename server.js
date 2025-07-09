@@ -20,10 +20,7 @@ app.use(bodyParser.json());
 
 
 //  MongoDB Connection
-mongoose.connect("mongodb://localhost:27017/attendance", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log(" Connected to MongoDB"))
     .catch((err) => console.log(" MongoDB Connection Error:", err));
 
@@ -91,7 +88,10 @@ app.post("/signup", async (req, res) => {
         if (existingUser) return res.status(400).json({ message: " User already exists" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, password: hashedPassword });
+        const newUser = new User({
+            email: email.toLowerCase().trim(),
+            password: hashedPassword,  // <-- Save hashed password here
+        });
         await newUser.save();
 
         res.json({ message: " Signup successful" });
@@ -111,24 +111,30 @@ app.get("/signup", authenticate, async (req, res) => {
 });
 
 
-
-
-
 //  User Login 
 app.post("/login", async (req, res) => {
     console.log("Login request received:", req.body);
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        const cleanedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: cleanedEmail });
+        if (!user) {
+            console.log("User not found");
             return res.status(401).json({ message: " Invalid credentials" });
         }
-
+        console.log("User found:", user);
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("Password Match:", isMatch);
+        if (!isMatch) {
+            console.log("Password didn't match");
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "2h" });
 
         res.json({ message: " Login successful", token, email: user.email });
     } catch (err) {
+        console.error("Login error:", err);
         res.status(500).json({ message: " Login error", error: err.message });
     }
 });
@@ -142,7 +148,7 @@ app.get("/login", authenticate, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select("-password"); // Exclude password
         if (!user) return res.status(404).json({ message: " User not found" });
-        res.json(login);
+        res.json(user);
     } catch (error) {
         res.status(500).json({ message: " Error fetching credentials", error: error.message });
     }
@@ -203,25 +209,36 @@ app.delete("/subjects/:name", authenticate, async (req, res) => {
 
 
 //  POST: Save Attendance 
+// POST: Save Attendance 
 app.post("/attendance", authenticate, async (req, res) => {
     const { subject, date, status } = req.body;
 
     try {
-        const existingAttendance = await Attendance.findOne({ subject, date, userId: req.user.id });
+        const existingAttendance = await Attendance.findOne({
+            subject,
+            date,
+            userId: req.user.id,
+        });
 
         if (existingAttendance) {
             existingAttendance.status = status;
             await existingAttendance.save();
         } else {
-            const newAttendance = new Attendance({ subject, date, status, userId: req.user.id });
+            const newAttendance = new Attendance({
+                subject,
+                date,
+                status,
+                userId: req.user.id,
+            });
             await newAttendance.save();
         }
 
-        res.json({ message: " Attendance saved successfully!" });
+        res.json({ message: "Attendance saved successfully!" });
     } catch (error) {
-        res.status(500).json({ message: " Error saving attendance", error: error.message });
+        res.status(500).json({ message: "Error saving attendance", error: error.message });
     }
 });
+
 
 
 
