@@ -1,0 +1,59 @@
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: linear-gradient(to right, #ff758c, #ff7eb3); /* Pink gradient */
+    color: white;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Logo */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Navigation Links */
+.nav-right {
+    display: flex;
+    gap: 20px; /* Space between links */
+}
+
+.nav-link {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffe0f0;
+}
+
+/* Logout Button */
+.logout-btn {
+    background-color: white;
+    color: #ff758c;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #ff4d6d;
+    color: white;
+}
+
+
+.disabled-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}

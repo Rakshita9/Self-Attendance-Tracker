@@ -1,0 +1,14 @@
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, #7ab2ce, #ff7eb3, #70e1f5);
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        color: white;
+    }
+    
+    .app-container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+    }
