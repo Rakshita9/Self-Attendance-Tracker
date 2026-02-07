@@ -5,7 +5,7 @@ import axios from "axios";
 import Navbar from "./components/Navbar";
 import SubjectPanel from "./components/SubjectPanel";
 import AttendanceCalender1 from "./components/AttendanceCalender1";
-import Stats from "./components/Stats";
+//import Stats from "./components/Stats";
 import Footer from "./components/Footer";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
