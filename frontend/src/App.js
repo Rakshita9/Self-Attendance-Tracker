@@ -27,7 +27,8 @@ const App = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get("http://localhost:5000/subject", {
+      const URL = process.env.BACKEND_URL || "http://localhost:5000";
+      const res = await axios.get(`${URL}/subject`, {
         headers: { Authorization: token },
       });
 
@@ -43,7 +44,8 @@ const App = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get("http://localhost:5000/attendance", {
+      const URL = process.env.BACKEND_URL || "http://localhost:5000";
+      const res = await axios.get(`${URL}/attendance`, {
         headers: { Authorization: token },
       });
 
