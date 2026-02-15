@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+import dns from "node:dns/promises";
+dns.setServers(["1.1.1.1"]); // Use Cloudflare's DNS or 8.8.8.8 for Google
 
 
 const app = express();
