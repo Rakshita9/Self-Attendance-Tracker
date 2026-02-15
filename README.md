@@ -33,12 +33,6 @@ It eliminates guesswork by storing attendance records and calculating real stati
 - Mongoose
 - Git
 
-##  Installation
 
-Clone the repository:
-
-```bash
-git clone https://github.com/<your-username>/self-attendance-tracker.git
-cd self-attendance-tracker
 
 
