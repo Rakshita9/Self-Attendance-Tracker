@@ -30,8 +30,22 @@ const Signup = () => {
         <div className="signup-container">
             <h2>Signup</h2>
             <form onSubmit={handleSubmit}>
-                <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-                <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                />
                 <button type="submit">Signup</button>
             </form>
         </div>
