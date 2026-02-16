@@ -19,20 +19,34 @@ dotenv.config();
 //  Middleware
 const allowedOrigins = [
     process.env.FRONTEND_URL || "http://localhost:3000",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "https://localhost:3000"
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // For development: allow localhost
+        // For production: allow specific origin
+        if (!origin ||
+            origin.includes('localhost') ||
+            origin.includes('127.0.0.1') ||
+            allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
+            console.log("❌ CORS blocked:", origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true
 }));
 app.use(bodyParser.json());
+
+// Logging middleware
+app.use((req, res, next) => {
+    console.log(`📨 ${req.method} ${req.path} - Origin: ${req.get('origin')}`);
+    next();
+});
 
 
 //  MongoDB Connection
@@ -105,12 +119,12 @@ app.post("/signup", async (req, res) => {
     try {
         const { email, password } = req.body;
         console.log("📝 Signup request received:", { email, password: password ? "***" : "missing" });
-        
+
         if (!email || !password) {
             console.log("❌ Missing email or password");
             return res.status(400).json({ message: "Email and password are required" });
         }
-        
+
         const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
 
         if (existingUser) {

@@ -26,6 +26,11 @@ const Signup = () => {
         }
 
         try {
+            console.log("📝 Attempting signup with:", {
+                email: formData.email,
+                passwordLength: formData.password.length
+            });
+
             const res = await signup(formData.email.trim().toLowerCase(), formData.password);
             console.log("✅ Signup successful:", res);
 
@@ -33,7 +38,22 @@ const Signup = () => {
             navigate("/login");
         } catch (err) {
             console.error("❌ Signup error:", err);
-            const errorMsg = err.response?.data?.message || err.message || "Signup failed!";
+
+            // Better error messages
+            let errorMsg = "Signup failed!";
+
+            if (err.response?.status === 400) {
+                errorMsg = err.response.data?.message || "Invalid email or password";
+            } else if (err.response?.status === 500) {
+                errorMsg = err.response.data?.message || "Server error - please try again";
+            } else if (err.message === "Network Error") {
+                errorMsg = "Network error - check your connection and backend URL";
+            } else if (err.message.includes("CORS")) {
+                errorMsg = "CORS error - backend not accessible";
+            } else {
+                errorMsg = err.response?.data?.message || err.message || "Signup failed!";
+            }
+
             alert(errorMsg);
         }
     };
