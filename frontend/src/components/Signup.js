@@ -14,16 +14,28 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validation
+        if (!formData.email || !formData.password) {
+            alert("Email and password are required!");
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            alert("Password must be at least 6 characters!");
+            return;
+        }
+
         try {
-            await signup(formData.email.trim().toLowerCase(), formData.password);
+            const res = await signup(formData.email.trim().toLowerCase(), formData.password);
+            console.log("✅ Signup successful:", res);
 
             alert("Signup successful! Redirecting to login...");
             navigate("/login");
         } catch (err) {
-            console.error("Signup error:", err.response?.data || err.message);
-            alert(err.response?.data?.message || "Signup failed!");
+            console.error("❌ Signup error:", err);
+            const errorMsg = err.response?.data?.message || err.message || "Signup failed!";
+            alert(errorMsg);
         }
-
     };
 
     return (

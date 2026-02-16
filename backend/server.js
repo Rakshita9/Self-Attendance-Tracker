@@ -104,23 +104,32 @@ const authenticate = (req, res, next) => {
 app.post("/signup", async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log("📝 Signup request received:", { email, password: password ? "***" : "missing" });
+        
         if (!email || !password) {
-            return res.status(400).json({ error: "Email and password are required" });
+            console.log("❌ Missing email or password");
+            return res.status(400).json({ message: "Email and password are required" });
         }
-        const existingUser = await User.findOne({ email });
+        
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
 
-        if (existingUser) return res.status(400).json({ message: " User already exists" });
+        if (existingUser) {
+            console.log("❌ User already exists:", email);
+            return res.status(400).json({ message: "User already exists" });
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({
             email: email.toLowerCase().trim(),
-            password: hashedPassword,  // <-- Save hashed password here
+            password: hashedPassword,
         });
         await newUser.save();
+        console.log("✅ User created successfully:", email);
 
-        res.json({ message: " Signup successful" });
+        res.json({ message: "Signup successful" });
     } catch (err) {
-        res.status(500).json({ message: " Signup error", error: err.message });
+        console.error("❌ Signup error:", err.message);
+        res.status(500).json({ message: "Signup error", error: err.message });
     }
 });
 
