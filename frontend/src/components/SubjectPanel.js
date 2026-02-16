@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { fetchSubjects, addSubject, deleteSubject } from "../api";
 import "./SubjectsPanel.css";
 
 const SubjectsPanel = () => {
@@ -10,35 +10,27 @@ const SubjectsPanel = () => {
     const [subjectToDelete, setSubjectToDelete] = useState(null);
     const navigate = useNavigate();
 
-    const token = localStorage.getItem("token");
-
-    // ✅ Fetch subjects from backend on mount
+    //  Fetch subjects from backend on mount
     useEffect(() => {
-        const fetchSubjects = async () => {
+        const loadSubjects = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/subject", {
-                    headers: { Authorization: token },
-                });
+                const res = await fetchSubjects();
                 setSubjects(res.data);
             } catch (error) {
                 console.error("Error fetching subjects:", error);
             }
         };
 
-        fetchSubjects();
-    }, [token]);
+        loadSubjects();
+    }, []);
 
-    // ✅ Add subject via backend
+    //  Add subject via backend
     const handleAddSubject = async () => {
         if (subject.trim() === "") return;
 
         try {
-            const res = await axios.post(
-                "http://localhost:5000/subject",
-                { name: subject },
-                { headers: { Authorization: token } }
-            );
-            setSubjects([...subjects, res.data.subject]);
+            const res = await addSubject(subject);
+            setSubjects([...subjects, res.data.subject || { name: subject }]);
             setSubject("");
         } catch (error) {
             alert(error.response?.data?.message || "Error adding subject");
@@ -52,9 +44,7 @@ const SubjectsPanel = () => {
 
     const confirmDelete = async () => {
         try {
-            await axios.delete(`http://localhost:5000/subjects/${subjectToDelete}`, {
-                headers: { Authorization: token },
-            });
+            await deleteSubject(subjectToDelete);
             setSubjects(subjects.filter((s) => s.name !== subjectToDelete));
             setShowConfirm(false);
             setSubjectToDelete(null);

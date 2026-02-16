@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { login } from "../api";
 import "./Login.css";
 
 const Login = ({ setIsAuthenticated }) => {
@@ -12,13 +12,10 @@ const Login = ({ setIsAuthenticated }) => {
         e.preventDefault();
 
         try {
-            const res = await axios.post("http://localhost:5000/login", { email, password });
+            const res = await login(email, password);
 
-            // If login is successful, store token and update auth state
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("isAuthenticated", "true");
-            localStorage.setItem("email", res.data.email);
-
+            // Store email and dispatch auth event
+            localStorage.setItem("email", res.email);
             window.dispatchEvent(new Event("authChanged"));
             setIsAuthenticated(true);
 

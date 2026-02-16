@@ -17,7 +17,21 @@ dotenv.config();
 
 
 //  Middleware
-app.use(cors({ origin: "*", credentials: true }));
+const allowedOrigins = [
+    process.env.FRONTEND_URL || "http://localhost:3000",
+    "http://localhost:3000"
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 
@@ -63,15 +77,23 @@ const Attendance = mongoose.model("Attendance", attendanceSchema);
 
 //  Authentication Middleware
 const authenticate = (req, res, next) => {
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ message: " Access Denied" });
+    const authHeader = req.header("Authorization");
+    console.log("🔐 Auth Header:", authHeader);
+
+    if (!authHeader) return res.status(401).json({ message: " Access Denied" });
+
+    // Extract token from "Bearer <token>" format
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+    console.log("🔑 Extracted Token:", token);
 
     try {
         const verified = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("✅ Token verified:", verified);
         req.user = verified;
         next();
     } catch (error) {
-        res.status(400).json({ message: " Invalid Token" });
+        console.log("❌ Token verification failed:", error.message);
+        res.status(400).json({ message: " Invalid Token", error: error.message });
     }
 };
 

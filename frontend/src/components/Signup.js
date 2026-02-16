@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { signup } from "../api";
 import "./Signup.css";
 
 const Signup = () => {
-    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -15,10 +15,7 @@ const Signup = () => {
         e.preventDefault();
 
         try {
-            await axios.post("http://localhost:5000/signup", {
-                email: formData.email.trim().toLowerCase(),
-                password: formData.password,
-            });
+            await signup(formData.email.trim().toLowerCase(), formData.password);
 
             alert("Signup successful! Redirecting to login...");
             navigate("/login");
@@ -33,7 +30,6 @@ const Signup = () => {
         <div className="signup-container">
             <h2>Signup</h2>
             <form onSubmit={handleSubmit}>
-                <input type="text" name="name" placeholder="Full Name" onChange={handleChange} required />
                 <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
                 <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
                 <button type="submit">Signup</button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { fetchSubjects } from "./api";
 
 import Navbar from "./components/Navbar";
 import SubjectPanel from "./components/SubjectPanel";
@@ -16,54 +16,30 @@ import "./App.css";
 
 const App = () => {
   const [subjects, setSubjects] = useState([]);
-  const [, setAttendance] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem("token") ? true : false
   );
 
   /* ---------------- FETCH SUBJECTS ---------------- */
-  const fetchSubjects = async () => {
+  const loadSubjects = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const URL = process.env.BACKEND_URL || "http://localhost:5000";
-      const res = await axios.get(`${URL}/subject`, {
-        headers: { Authorization: token },
-      });
-
-      setSubjects(res.data.map((s) => s.name));
+      const res = await fetchSubjects();
+      setSubjects(res.data.map((s) => s.name || s));
     } catch (err) {
       console.error("Error fetching subjects:", err);
-    }
-  };
-
-  /* ---------------- FETCH ATTENDANCE ---------------- */
-  const fetchAttendance = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const URL = process.env.BACKEND_URL || "http://localhost:5000";
-      const res = await axios.get(`${URL}/attendance`, {
-        headers: { Authorization: token },
-      });
-
-      setAttendance(res.data);
-    } catch (err) {
-      console.error("Error fetching attendance:", err);
     }
   };
 
   /* ---------------- AUTH EFFECT ---------------- */
   useEffect(() => {
     if (isAuthenticated) {
-      fetchSubjects();
-      fetchAttendance();
+      loadSubjects();
     } else {
       // SECURITY: clear previous user data
       setSubjects([]);
-      setAttendance([]);
     }
   }, [isAuthenticated]);
 
@@ -76,7 +52,6 @@ const App = () => {
 
     setIsAuthenticated(false);
     setSubjects([]);
-    setAttendance([]);
   };
 
   return (
