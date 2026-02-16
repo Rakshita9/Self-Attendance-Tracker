@@ -139,4 +139,35 @@
         font-size: 14px;
     }
     
-    .add-btn, .delete-btn {\n        padding: 8px 10px;\n        font-size: 12px;\n        width: 45%;\n        margin: 3px auto;\n    }\n    \n    .subject-item {\n        flex-direction: column;\n        align-items: stretch;\n        gap: 5px;\n    }\n    \n    .subject-name {\n        font-size: 14px;\n    }\n    \n    .popup {\n        padding: 10px;\n    }\n    \n    .popup-content {\n        width: 90%;\n        padding: 12px;\n        border-radius: 8px;\n    }\n    \n    .popup button {\n        width: 45%;\n        padding: 8px;\n        font-size: 14px;\n    }\n}
+    .add-btn, .delete-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+        width: 45%;
+        margin: 3px auto;
+    }
+    
+    .subject-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .subject-name {
+        font-size: 14px;
+    }
+    
+    .popup {
+        padding: 10px;
+    }
+    
+    .popup-content {
+        width: 90%;
+        padding: 12px;
+        border-radius: 8px;
+    }
+    
+    .popup button {
+        width: 45%;
+        padding: 8px;
+        font-size: 14px;
+    }
