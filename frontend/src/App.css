@@ -12,3 +12,26 @@
         margin: auto;
         padding: 20px;
     }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .app-container {
+            width: 90%;
+            padding: 15px;
+        }
+        
+        body {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .app-container {
+            width: 95%;
+            padding: 10px;
+        }
+        
+        body {
+            font-size: 12px;
+        }
+    }
