@@ -59,6 +59,15 @@ export const saveAttendance = async (subject, date, status) => {
     });
 };
 
+// Function to delete attendance for a date
+export const deleteAttendance = async (subject, date) => {
+    const token = localStorage.getItem('token');
+    return await api.delete('/attendance', {
+        data: { subject, date },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
 // Function to fetch attendance
 export const fetchAttendance = async () => {
     const token = localStorage.getItem('token');

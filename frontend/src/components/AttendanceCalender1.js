@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./AttendanceCalendar.css";
 import { useParams, useNavigate } from "react-router-dom";
+import { fetchAttendance, saveAttendance, deleteAttendance } from "../api";
 
 const AttendanceCalendar = () => {
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -9,21 +10,91 @@ const AttendanceCalendar = () => {
     const { subject } = useParams();
     const navigate = useNavigate();
 
-    const user = localStorage.getItem("email") || "guest";
-    const localStorageKey = `attendance_${user}_${subject}`;
+    const formatDate = (year, month, day) => {
+        const mm = String(month + 1).padStart(2, "0");
+        const dd = String(day).padStart(2, "0");
+        return `${year}-${mm}-${dd}`;
+    };
 
-    // Load attendance on mount
-    useEffect(() => {
-        const savedAttendance = localStorage.getItem(localStorageKey);
-        if (savedAttendance) {
-            setAttendance(JSON.parse(savedAttendance));
+    const normalizeApiStatus = (status) => {
+        const value = String(status || "").toLowerCase();
+        if (value === "present") return "present";
+        if (value === "absent") return "absent";
+        return "";
+    };
+
+    const toApiStatus = (status) => {
+        if (status === "present") return "Present";
+        if (status === "absent") return "Absent";
+        return "";
+    };
+
+    const parseAttendanceDate = (value) => {
+        const raw = String(value || "").trim();
+        if (!raw) return null;
+
+        const ymdMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (ymdMatch) {
+            return {
+                year: Number(ymdMatch[1]),
+                month: Number(ymdMatch[2]),
+                day: Number(ymdMatch[3]),
+            };
         }
-    }, [localStorageKey]);
 
-    // Save attendance on change
+        const parsed = new Date(raw);
+        if (!Number.isNaN(parsed.getTime())) {
+            return {
+                year: parsed.getFullYear(),
+                month: parsed.getMonth() + 1,
+                day: parsed.getDate(),
+            };
+        }
+
+        return null;
+    };
+
+    const loadAttendance = async () => {
+        try {
+            const res = await fetchAttendance();
+            const mapped = {};
+            let latestDate = null;
+
+            (res.data || []).forEach((item) => {
+                if (item.subject !== subject) return;
+
+                const parsedDate = parseAttendanceDate(item.date);
+                if (!parsedDate) return;
+
+                const { year, month, day } = parsedDate;
+                const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+                if (!latestDate || dateKey > latestDate) {
+                    latestDate = dateKey;
+                }
+
+                if (!mapped[subject]) mapped[subject] = {};
+                if (!mapped[subject][year]) mapped[subject][year] = {};
+                if (!mapped[subject][year][month - 1]) mapped[subject][year][month - 1] = {};
+
+                mapped[subject][year][month - 1][day] = normalizeApiStatus(item.status);
+            });
+
+            setAttendance(mapped);
+
+            if (latestDate) {
+                const [latestYear, latestMonth] = latestDate.split("-").map(Number);
+                setSelectedYear(latestYear);
+                setSelectedMonth(latestMonth - 1);
+            }
+        } catch (error) {
+            console.error("Error fetching attendance:", error);
+        }
+    };
+
     useEffect(() => {
-        localStorage.setItem(localStorageKey, JSON.stringify(attendance));
-    }, [attendance, localStorageKey]);
+        loadAttendance();
+    }, [subject]);
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -36,31 +107,49 @@ const AttendanceCalendar = () => {
     const firstDay = getFirstDayOfMonth(selectedMonth, selectedYear);
 
     // Toggle attendance status
-    const toggleAttendance = (day) => {
-        setAttendance((prev) => {
-            const prevSubjectData = prev[subject] || {};
-            const prevYearData = prevSubjectData[selectedYear] || {};
-            const prevMonthData = prevYearData[selectedMonth] || {};
+    const toggleAttendance = async (day) => {
+        const currentStatus = attendance[subject]?.[selectedYear]?.[selectedMonth]?.[day] || "";
+        const newStatus =
+            currentStatus === "present" ? "absent" :
+                currentStatus === "absent" ? "" : "present";
 
-            const currentStatus = prevMonthData[day] || "";
-            const newStatus =
-                currentStatus === "present" ? "absent" :
-                    currentStatus === "absent" ? "" : "present";
+        const date = formatDate(selectedYear, selectedMonth, day);
 
-            return {
-                ...prev,
-                [subject]: {
-                    ...prevSubjectData,
-                    [selectedYear]: {
-                        ...prevYearData,
-                        [selectedMonth]: {
-                            ...prevMonthData,
-                            [day]: newStatus,
+        try {
+            if (newStatus) {
+                await saveAttendance(subject, date, toApiStatus(newStatus));
+            } else {
+                await deleteAttendance(subject, date);
+            }
+
+            setAttendance((prev) => {
+                const prevSubjectData = prev[subject] || {};
+                const prevYearData = prevSubjectData[selectedYear] || {};
+                const prevMonthData = prevYearData[selectedMonth] || {};
+
+                const updatedMonthData = { ...prevMonthData };
+
+                if (newStatus) {
+                    updatedMonthData[day] = newStatus;
+                } else {
+                    delete updatedMonthData[day];
+                }
+
+                return {
+                    ...prev,
+                    [subject]: {
+                        ...prevSubjectData,
+                        [selectedYear]: {
+                            ...prevYearData,
+                            [selectedMonth]: updatedMonthData,
                         },
                     },
-                },
-            };
-        });
+                };
+            });
+        } catch (error) {
+            console.error("Error saving attendance:", error);
+            alert("Attendance save failed. Please try again.");
+        }
     };
 
     const currentMonthAttendance = attendance[subject]?.[selectedYear]?.[selectedMonth] || {};

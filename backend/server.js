@@ -31,6 +31,7 @@ app.use(cors({
         if (!origin ||
             origin.includes('localhost') ||
             origin.includes('127.0.0.1') ||
+            origin.includes('.vercel.app') ||
             allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -295,6 +296,25 @@ app.get("/attendance", authenticate, async (req, res) => {
         res.json(data);
     } catch (error) {
         res.status(500).json({ message: " Error fetching attendance", error: error.message });
+    }
+});
+
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
+
+app.delete("/attendance", authenticate, async (req, res) => {
+    const { subject, date } = req.body;
+
+    if (!subject || !date) {
+        return res.status(400).json({ message: "Subject and date are required" });
+    }
+
+    try {
+        await Attendance.deleteOne({ subject, date, userId: req.user.id });
+        res.json({ message: "Attendance deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting attendance", error: error.message });
     }
 });
 
